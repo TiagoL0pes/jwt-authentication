@@ -1,7 +1,9 @@
 package com.authentication.data.models;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -49,11 +51,27 @@ public class User {
 	@JoinTable(name = "user_authority", joinColumns = {
 			@JoinColumn(name = "user_id", referencedColumnName = "user_id") }, inverseJoinColumns = {
 					@JoinColumn(name = "authority_id", referencedColumnName = "authority_id") })
-	private Collection<Authority> authorities = new ArrayList<>();
+	private Set<Authority> authorities = new HashSet<>();
 
 	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@JoinTable(name = "user_role", joinColumns = {
 			@JoinColumn(name = "user_id", referencedColumnName = "user_id") }, inverseJoinColumns = {
 					@JoinColumn(name = "role_id", referencedColumnName = "role_id") })
-	private Collection<Role> roles = new ArrayList<>();
+	private Set<Role> roles = new HashSet<>();
+
+	public void addRoles(Collection<Role> roles) {
+		Set<Role> filteredRoles = roles.stream()
+			.filter(e -> !this.roles.contains(e))
+			.collect(Collectors.toSet());
+		
+		filteredRoles.forEach(e -> this.roles.add(e));
+	}
+
+	public void addAuthorities(Collection<Authority> authorities) {
+ 		Set<Authority> filteredAuthorities = authorities.stream()
+		.filter(e -> !this.authorities.contains(e))
+		.collect(Collectors.toSet());
+	
+ 		filteredAuthorities.forEach(e -> this.authorities.add(e));
+	}
 }
