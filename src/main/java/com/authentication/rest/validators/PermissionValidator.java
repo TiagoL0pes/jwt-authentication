@@ -1,8 +1,8 @@
 package com.authentication.rest.validators;
 
-import java.util.Collection;
+import java.util.Set;
 
 public interface PermissionValidator<T> {
 
-	public Collection<T> validate(Collection<T> entities);
+	public Set<T> validate(Set<T> entities);
 }

@@ -2,6 +2,8 @@ package com.authentication.rest.controllers;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +28,7 @@ public class UserController {
 	private UserService userService;
 
 	@PostMapping
-	public ResponseEntity<UserDto> create(@RequestBody User form) {
+	public ResponseEntity<UserDto> create(@RequestBody @Valid User form) {
 		UserDto dto = userService.create(form);
 		return ResponseEntity.ok(dto);
 	}

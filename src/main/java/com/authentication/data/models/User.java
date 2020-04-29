@@ -16,20 +16,26 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
+@EqualsAndHashCode
 @Entity
 @Table(name = "users")
 public class User {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "user_id")
+	@Column(name = "user_id", unique = true)
 	private Long id;
 
 	@Column(name = "email", nullable = false)
+	@NotNull(message = "{field.not.null}")
+	@NotEmpty(message = "{field.not.empty}")
 	private String email;
 
 	@Column(name = "password", nullable = false)
