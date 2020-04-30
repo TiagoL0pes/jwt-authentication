@@ -39,8 +39,8 @@ public class UserService {
 		user.setRoles(new RoleValidator(roleRepository)
 				.validate(user.getRoles()));
 		
-		user.setAuthorities(new AuthorityValidator(authorityRepository).
-				validate(user.getAuthorities()));
+		user.setPermissions(new AuthorityValidator(authorityRepository).
+				validate(user.getPermissions()));
 		
 		userRepository.save(user);
 		return ModelConverter.convertObject(user, UserDto.class);
@@ -73,8 +73,8 @@ public class UserService {
 		user.addRoles(new RoleValidator(roleRepository)
 				.validate(form.getRoles()));
 		
-		user.addAuthorities(new AuthorityValidator(authorityRepository)
-				.validate(form.getAuthorities()));
+		user.addPermissions(new AuthorityValidator(authorityRepository)
+				.validate(form.getPermissions()));
 
 		user.setPassword(isNullOrEmpty(form.getPassword()) ? form.getPassword() : form.getPassword());
 	}

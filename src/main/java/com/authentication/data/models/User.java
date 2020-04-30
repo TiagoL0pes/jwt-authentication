@@ -19,14 +19,19 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Data
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 @Entity
 @Table(name = "users")
-public class User {
+public class User implements UserDetails {
+
+	private static final long serialVersionUID = 2902742143844389415L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -57,7 +62,7 @@ public class User {
 	@JoinTable(name = "user_authority", joinColumns = {
 			@JoinColumn(name = "user_id", referencedColumnName = "user_id") }, inverseJoinColumns = {
 					@JoinColumn(name = "authority_id", referencedColumnName = "authority_id") })
-	private Set<Authority> authorities = new HashSet<>();
+	private Set<Authority> permissions = new HashSet<>();
 
 	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@JoinTable(name = "user_role", joinColumns = {
@@ -65,19 +70,52 @@ public class User {
 					@JoinColumn(name = "role_id", referencedColumnName = "role_id") })
 	private Set<Role> roles = new HashSet<>();
 
+	@Override
+	public String getUsername() {
+		return this.email;
+	}
+
+	@Override
+	public String getPassword() {
+		return this.password;
+	}
+
+	@Override
+	public boolean isAccountNonExpired() {
+		return this.accountNonExpired;
+	}
+
+	@Override
+	public boolean isAccountNonLocked() {
+		return this.accountNonLocked;
+	}
+
+	@Override
+	public boolean isCredentialsNonExpired() {
+		return this.credentialsNonExpired;
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return this.enabled;
+	}
+
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		return this.permissions;
+	}
+
 	public void addRoles(Collection<Role> roles) {
-		Set<Role> filteredRoles = roles.stream()
-			.filter(e -> !this.roles.contains(e))
-			.collect(Collectors.toSet());
-		
+		Set<Role> filteredRoles = roles.stream().filter(e -> !this.roles.contains(e)).collect(Collectors.toSet());
+
 		filteredRoles.forEach(e -> this.roles.add(e));
 	}
 
-	public void addAuthorities(Collection<Authority> authorities) {
- 		Set<Authority> filteredAuthorities = authorities.stream()
-		.filter(e -> !this.authorities.contains(e))
-		.collect(Collectors.toSet());
-	
- 		filteredAuthorities.forEach(e -> this.authorities.add(e));
+	public void addPermissions(Collection<Authority> authorities) {
+		Set<Authority> filteredAuthorities = authorities.stream().filter(e -> !this.permissions.contains(e))
+				.collect(Collectors.toSet());
+
+		filteredAuthorities.forEach(e -> this.permissions.add(e));
 	}
+
 }
