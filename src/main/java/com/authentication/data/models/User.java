@@ -58,13 +58,13 @@ public class User implements UserDetails {
 	@Column(name = "enabled", columnDefinition = "boolean DEFAULT true")
 	private Boolean enabled = true;
 
-	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
 	@JoinTable(name = "user_authority", joinColumns = {
 			@JoinColumn(name = "user_id", referencedColumnName = "user_id") }, inverseJoinColumns = {
 					@JoinColumn(name = "authority_id", referencedColumnName = "authority_id") })
 	private Set<Authority> permissions = new HashSet<>();
 
-	@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
 	@JoinTable(name = "user_role", joinColumns = {
 			@JoinColumn(name = "user_id", referencedColumnName = "user_id") }, inverseJoinColumns = {
 					@JoinColumn(name = "role_id", referencedColumnName = "role_id") })

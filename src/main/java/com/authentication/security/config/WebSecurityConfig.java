@@ -9,9 +9,14 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.authentication.rest.repositories.UserRepository;
+import com.authentication.security.rest.filters.AuthenticationTokenFilter;
 import com.authentication.security.rest.services.AuthenticationService;
+import com.authentication.security.rest.services.TokenService;
 
 @Configuration
 @EnableWebSecurity
@@ -19,6 +24,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Autowired
 	private AuthenticationService authenticationService;
+	
+	@Autowired
+	private TokenService tokenService;
+	
+	@Autowired
+	private UserRepository userRepository;
 	
 	@Bean
 	@Override
@@ -40,6 +51,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			.anyRequest().authenticated()
 		.and()
 			.cors().disable()
-			.csrf().disable();
+			.csrf().disable()
+			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+		.and()
+			.addFilterBefore(new AuthenticationTokenFilter(tokenService, userRepository), UsernamePasswordAuthenticationFilter.class);
 	}
 }

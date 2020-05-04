@@ -8,9 +8,13 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.authentication.data.dtos.UserDto;
+import com.authentication.data.models.Authority;
 import com.authentication.data.models.User;
 import com.authentication.rest.repositories.AuthorityRepository;
 import com.authentication.rest.repositories.RoleRepository;
@@ -42,6 +46,7 @@ public class UserService {
 		user.setPermissions(new AuthorityValidator(authorityRepository).
 				validate(user.getPermissions()));
 		
+		user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
 		userRepository.save(user);
 		return ModelConverter.convertObject(user, UserDto.class);
 	}
@@ -64,6 +69,7 @@ public class UserService {
 		return ModelConverter.convertObject(user, UserDto.class);
 	}
 
+	@Transactional
 	public void delete(Long id) {
 		User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found"));
 		userRepository.delete(user);
