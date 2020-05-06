@@ -2,6 +2,7 @@ package com.authentication.rest.services;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -14,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.authentication.data.dtos.UserDto;
-import com.authentication.data.models.Authority;
 import com.authentication.data.models.User;
 import com.authentication.rest.repositories.AuthorityRepository;
 import com.authentication.rest.repositories.RoleRepository;
@@ -39,13 +39,11 @@ public class UserService {
 
 	public UserDto create(User user) {
 		validateUsername(user);
-		
-		user.setRoles(new RoleValidator(roleRepository)
-				.validate(user.getRoles()));
-		
-		user.setPermissions(new AuthorityValidator(authorityRepository).
-				validate(user.getPermissions()));
-		
+
+		user.setRoles(new RoleValidator(roleRepository).validate(user.getRoles()));
+
+		user.setPermissions(new AuthorityValidator(authorityRepository).validate(user.getPermissions()));
+
 		user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
 		userRepository.save(user);
 		return ModelConverter.convertObject(user, UserDto.class);
@@ -54,6 +52,12 @@ public class UserService {
 	public UserDto findById(Long id) {
 		return userRepository.findById(id).map(e -> ModelConverter.convertObject(e, UserDto.class))
 				.orElseThrow(() -> new ResourceNotFoundException("User not found"));
+	}
+	
+	public Collection<? extends GrantedAuthority> findAuthoritiesByUserEmail(String email) {
+		return userRepository.findByEmail(email).map(e -> e.getAuthorities())
+				.orElseThrow(() -> new ResourceNotFoundException("User " + email + " not found"));
+		
 	}
 
 	public List<UserDto> findAll(Pageable pageable) {
@@ -76,20 +80,19 @@ public class UserService {
 	}
 
 	private void updateEntity(User user, User form) {
-		user.addRoles(new RoleValidator(roleRepository)
-				.validate(form.getRoles()));
-		
-		user.addPermissions(new AuthorityValidator(authorityRepository)
-				.validate(form.getPermissions()));
+		user.addRoles(new RoleValidator(roleRepository).validate(form.getRoles()));
+
+		user.addPermissions(new AuthorityValidator(authorityRepository).validate(form.getPermissions()));
 
 		user.setPassword(isNullOrEmpty(form.getPassword()) ? form.getPassword() : form.getPassword());
 	}
 
 	private void validateUsername(User user) {
 		Optional<User> optional = userRepository.findByEmail(user.getEmail());
-		if(optional.isPresent()) {
+		if (optional.isPresent()) {
 			throw new BadRequestException("Email " + user.getEmail() + " is already registered");
 		}
 
 	}
+
 }

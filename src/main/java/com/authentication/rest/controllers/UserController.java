@@ -7,6 +7,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,24 +35,28 @@ public class UserController {
 	}
 
 	@GetMapping("{id}")
+	@PreAuthorize("hasAuthority('DETAIL_USER')")
 	public ResponseEntity<UserDto> findById(@PathVariable Long id) {
 		UserDto dto = userService.findById(id);
 		return ResponseEntity.ok(dto);
 	}
 
 	@GetMapping
+	@PreAuthorize("hasAuthority('LIST_USER')")
 	public ResponseEntity<List<UserDto>> findAll(Pageable pageable) {
 		List<UserDto> dtos = userService.findAll(pageable);
 		return ResponseEntity.ok(dtos);
 	}
 
 	@PutMapping("{id}")
+	@PreAuthorize("hasAuthority('UPDATE_USER')")
 	public ResponseEntity<UserDto> update(@PathVariable Long id, @RequestBody User form) {
 		UserDto dto = userService.update(id, form);
 		return ResponseEntity.ok(dto);
 	}
 
 	@DeleteMapping("{id}")
+	@PreAuthorize("hasAuthority('DELETE_USER')")
 	public ResponseEntity<?> delete(@PathVariable Long id) {
 		userService.delete(id);
 		return ResponseEntity.noContent().build();
