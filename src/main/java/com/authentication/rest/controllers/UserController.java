@@ -19,21 +19,24 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.authentication.data.dtos.UserDto;
 import com.authentication.data.models.User;
+import com.authentication.rest.interfaces.IUserController;
 import com.authentication.rest.services.UserService;
 
 @RestController
 @RequestMapping("/users")
-public class UserController {
+public class UserController implements IUserController {
 
 	@Autowired
 	private UserService userService;
 
+	@Override
 	@PostMapping
 	public ResponseEntity<UserDto> create(@RequestBody @Valid User form) {
 		UserDto dto = userService.create(form);
 		return ResponseEntity.ok(dto);
 	}
 
+	@Override
 	@GetMapping("{id}")
 	@PreAuthorize("hasAuthority('DETAIL_USER')")
 	public ResponseEntity<UserDto> findById(@PathVariable Long id) {
@@ -41,6 +44,7 @@ public class UserController {
 		return ResponseEntity.ok(dto);
 	}
 
+	@Override
 	@GetMapping
 	@PreAuthorize("hasAuthority('LIST_USER')")
 	public ResponseEntity<List<UserDto>> findAll(Pageable pageable) {
@@ -48,6 +52,7 @@ public class UserController {
 		return ResponseEntity.ok(dtos);
 	}
 
+	@Override
 	@PutMapping("{id}")
 	@PreAuthorize("hasAuthority('UPDATE_USER')")
 	public ResponseEntity<UserDto> update(@PathVariable Long id, @RequestBody User form) {
@@ -55,6 +60,7 @@ public class UserController {
 		return ResponseEntity.ok(dto);
 	}
 
+	@Override
 	@DeleteMapping("{id}")
 	@PreAuthorize("hasAuthority('DELETE_USER')")
 	public ResponseEntity<?> delete(@PathVariable Long id) {
